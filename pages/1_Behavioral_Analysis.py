@@ -96,8 +96,6 @@ if uploaded_file is not None:
     else:
         st.write("Unable to perform Time-Series Analysis due to missing 'Transaction_DateTime' column.")
     
-    # Clustering - KMeans, GaussianMixture, DBSCAN, Agglomerative
-    st.subheader("Clustering Analysis")
 
 
     # Outliers Detection using Boxplot
@@ -107,9 +105,15 @@ if uploaded_file is not None:
     plt.title('Boxplot of Transaction Amounts')
     st.pyplot(fig)
 
-        # Bivariate Analysis: Spending Behavior by Age Group
+    # Bivariate Analysis: Spending Behavior by Age Group
     st.subheader("Bivariate Analysis (Exploring Relationships)")
+        # Ensure 'Age' column is numeric and create age groups
+    main_df['Age'] = pd.to_numeric(main_df['Age'], errors='coerce')
     main_df['Age_Group'] = pd.cut(main_df['Age'], bins=[18, 30, 40, 50, 60, 100], labels=['18-30', '30-40', '40-50', '50-60', '60+'])
+        
+        # Drop any rows where 'Age_Group' or 'Amount' is NaN
+    main_df = main_df.dropna(subset=['Age_Group', 'Amount'])
+        
     fig = plt.figure(figsize=(10, 6))
     sns.boxplot(x='Age_Group', y='Amount', data=main_df)
     plt.title('Spending Behavior by Age Group')
