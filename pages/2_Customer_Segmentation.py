@@ -112,15 +112,15 @@ if uploaded_file is not None:
             st.pyplot(fig)
 
         # t-SNE Visualization
-        st.subheader("t-SNE Visualization of Clusters")
-        tsne = TSNE(n_components=2, random_state=42)
-        tsne_results = tsne.fit_transform(main_df[features])
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.scatter(tsne_results[:, 0], tsne_results[:, 1], c=kmeans_labels, cmap='viridis')
-        ax.set_title('t-SNE Visualization of Clusters')
-        ax.set_xlabel('t-SNE Component 1')
-        ax.set_ylabel('t-SNE Component 2')
-        st.pyplot(fig)
+        # st.subheader("t-SNE Visualization of Clusters")
+        # tsne = TSNE(n_components=2, random_state=42)
+        # tsne_results = tsne.fit_transform(main_df[features])
+        # fig, ax = plt.subplots(figsize=(10, 6))
+        # ax.scatter(tsne_results[:, 0], tsne_results[:, 1], c=kmeans_labels, cmap='viridis')
+        # ax.set_title('t-SNE Visualization of Clusters')
+        # ax.set_xlabel('t-SNE Component 1')
+        # ax.set_ylabel('t-SNE Component 2')
+        # st.pyplot(fig)
 
     else:
         st.write("Error: 'Transaction_DateTime' column is missing from the dataset.")
