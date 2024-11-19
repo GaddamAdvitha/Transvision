@@ -99,120 +99,35 @@ if uploaded_file is not None:
     # Clustering - KMeans, GaussianMixture, DBSCAN, Agglomerative
     st.subheader("Clustering Analysis")
 
-    # Feature Engineering for clustering
-    main_df['Transaction_DateTime'] = pd.to_datetime(main_df['Transaction_DateTime'], errors='coerce')
-    main_df['Recency'] = (pd.to_datetime('now') - main_df.groupby('Customer_ID')['Transaction_DateTime'].transform('max')).dt.days
-    main_df['Frequency'] = main_df.groupby('Customer_ID')['Transaction_ID'].transform('count')
-    main_df['Monetary'] = main_df.groupby('Customer_ID')['Amount'].transform('sum')
-    features = ['Recency', 'Frequency', 'Monetary']
 
-    # KMeans Clustering
-    st.subheader("KMeans Clustering")
-    kmeans = KMeans(n_clusters=4, init='k-means++', random_state=42)
-    kmeans_labels = kmeans.fit_predict(main_df[features])
-    main_df['KMeans_Cluster'] = kmeans_labels
-    st.write(f"Silhouette Score for KMeans: {silhouette_score(main_df[features], kmeans_labels):.4f}")
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(main_df['Recency'], main_df['Frequency'], c=kmeans_labels, cmap='viridis')
-    ax.set_title('KMeans Clustering')
-    ax.set_xlabel('Recency')
-    ax.set_ylabel('Frequency')
+    # Outliers Detection using Boxplot
+    st.subheader("Outliers Detection")
+    fig = plt.figure(figsize=(10, 6))
+    sns.boxplot(x=main_df['Amount'])
+    plt.title('Boxplot of Transaction Amounts')
     st.pyplot(fig)
 
-    # Gaussian Mixture Model
-    st.subheader("Gaussian Mixture Model (GMM) Clustering")
-    gmm = GaussianMixture(n_components=4, random_state=42)
-    gmm_labels = gmm.fit_predict(main_df[features])
-    main_df['GMM_Cluster'] = gmm_labels
-    st.write(f"Silhouette Score for GMM: {silhouette_score(main_df[features], gmm_labels):.4f}")
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(main_df['Recency'], main_df['Frequency'], c=gmm_labels, cmap='plasma')
-    ax.set_title('GMM Clustering')
-    ax.set_xlabel('Recency')
-    ax.set_ylabel('Frequency')
+        # Bivariate Analysis: Spending Behavior by Age Group
+    st.subheader("Bivariate Analysis (Exploring Relationships)")
+    main_df['Age_Group'] = pd.cut(main_df['Age'], bins=[18, 30, 40, 50, 60, 100], labels=['18-30', '30-40', '40-50', '50-60', '60+'])
+    fig = plt.figure(figsize=(10, 6))
+    sns.boxplot(x='Age_Group', y='Amount', data=main_df)
+    plt.title('Spending Behavior by Age Group')
     st.pyplot(fig)
 
-    # Hierarchical Clustering
-    st.subheader("Hierarchical Clustering")
-    hierarchical = AgglomerativeClustering(n_clusters=4, linkage='ward')
-    hierarchical_labels = hierarchical.fit_predict(main_df[features])
-    main_df['Hierarchical_Cluster'] = hierarchical_labels
-    import scipy.cluster.hierarchy as sch
-    fig, ax = plt.subplots(figsize=(10, 7))
-    sch.dendrogram(sch.linkage(main_df[features], method='ward'))
-    ax.set_title('Dendrogram for Hierarchical Clustering')
-    st.pyplot(fig)
+        # Distributions and Skewness of Numerical Variables
+    st.subheader("Distributions and Skewness of Numerical Variables")
+    numerical_columns = ['Amount', 'Age', 'Old_Balance', 'New_Balance', 'Customer_Loyalty_Score']
+    for column in numerical_columns:
+        fig = plt.figure(figsize=(10, 6))
+        sns.histplot(main_df[column], kde=True)
+        plt.title(f'Distribution of {column}')
+        st.pyplot(fig)
 
-    # DBSCAN
-    st.subheader("DBSCAN Clustering")
-    dbscan = DBSCAN(eps=0.5, min_samples=5)
-    dbscan_labels = dbscan.fit_predict(main_df[features])
-    main_df['DBSCAN_Cluster'] = dbscan_labels
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(main_df['Recency'], main_df['Frequency'], c=dbscan_labels, cmap='plasma')
-    ax.set_title('DBSCAN Clustering')
-    ax.set_xlabel('Recency')
-    ax.set_ylabel('Frequency')
-    st.pyplot(fig)
 
-    # Mean Shift
-    st.subheader("Mean Shift Clustering")
-    mean_shift = MeanShift()
-    mean_shift_labels = mean_shift.fit_predict(main_df[features])
-    main_df['MeanShift_Cluster'] = mean_shift_labels
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(main_df['Recency'], main_df['Frequency'], c=mean_shift_labels, cmap='coolwarm')
-    ax.set_title('Mean Shift Clustering')
-    ax.set_xlabel('Recency')
-    ax.set_ylabel('Frequency')
-    st.pyplot(fig)
 
-    # t-SNE Visualization
-    # t-SNE Visualization
-    st.subheader("t-SNE Visualization of Clusters")
-    tsne = TSNE(n_components=2, random_state=42)
-    tsne_results = tsne.fit_transform(main_df[features])
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(tsne_results[:, 0], tsne_results[:, 1], c=main_df['KMeans_Cluster'], cmap='viridis')
-    ax.set_title('t-SNE Visualization of Clusters')
-    ax.set_xlabel('t-SNE Component 1')
-    ax.set_ylabel('t-SNE Component 2')
-    st.pyplot(fig)
-
-    # Model Training and Prediction (Optional)
-    st.subheader("Model Training - Predicting Customer Segments")
     
-    # Prepare features for model training
-    model_features = ['Recency', 'Frequency', 'Monetary']
-    X = main_df[model_features]
-    y = main_df['KMeans_Cluster']  # Use the KMeans clusters as labels for supervised learning
     
-    # Train-Test Split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Random Forest Classifier for Prediction
-    rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf_classifier.fit(X_train, y_train)
-    
-    # Model Accuracy
-    accuracy = rf_classifier.score(X_test, y_test)
-    st.write(f"Random Forest Classifier Accuracy: {accuracy:.4f}")
-
-    # Feature Importances
-    feature_importances = pd.Series(rf_classifier.feature_importances_, index=model_features).sort_values(ascending=False)
-    st.write("Feature Importances:\n", feature_importances)
-
-    # Predict on New Data (Optional)
-    st.subheader("Predicting New Customer Segments")
-    new_data = st.text_input("Enter new customer data (Recency, Frequency, Monetary) separated by commas:")
-    if new_data:
-        new_data = np.array([list(map(float, new_data.split(',')))])
-        predicted_cluster = rf_classifier.predict(new_data)
-        st.write(f"The predicted customer segment is: Cluster {predicted_cluster[0]}")
-
-    # Additional visualizations or insights can be added here
-
 
    
