@@ -100,6 +100,7 @@ if uploaded_file is not None:
     st.subheader("Clustering Analysis")
 
     # Feature Engineering for clustering
+    main_df['Transaction_DateTime'] = pd.to_datetime(main_df['Transaction_DateTime'], errors='coerce')
     main_df['Recency'] = (pd.to_datetime('now') - main_df.groupby('Customer_ID')['Transaction_DateTime'].transform('max')).dt.days
     main_df['Frequency'] = main_df.groupby('Customer_ID')['Transaction_ID'].transform('count')
     main_df['Monetary'] = main_df.groupby('Customer_ID')['Amount'].transform('sum')
